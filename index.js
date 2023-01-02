@@ -7,6 +7,7 @@ import config from "config";
 import fs from "fs";
 import csv from "fast-csv";
 dotenv.config({ path: "../.env" });
+import cors from "cors";
 
 const PORT = process.env.PORT || 3001;
 const app = express();
@@ -121,8 +122,6 @@ app.get("/addtoelastic", (req, res) => {
 });
 
 const read = async (str) => {
-  console.log(str);
-
   const results = await client.search({
     index: "name-list",
     body: {
@@ -139,10 +138,9 @@ const read = async (str) => {
 app.get("/search", async (req, res) => {
   // Retrieve data from elastic
   const query = req.query.q;
-  console.log(query);
   let results = await read(query);
-  console.log(results?.hits?.hits);
   // send it to frontend
+  res.header("Access-Control-Allow-Origin", "*");
   res.send(results.hits.hits);
 });
 
