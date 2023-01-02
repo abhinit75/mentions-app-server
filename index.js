@@ -136,12 +136,27 @@ const read = async (str) => {
 };
 
 app.get("/search", async (req, res) => {
+  const allowedOrigins = [
+    "http://localhost:3000",
+    "https://mentions-app-client.onrender.com",
+    "https://mentions-app-server.onrender.com",
+  ];
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+  }
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+  );
+  res.header("Access-Control-Allow-credentials", true);
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, UPDATE");
+  next();
+
   // Retrieve data from elastic
   const query = req.query.q;
   let results = await read(query);
   // send it to frontend
-  res.header("Access-Control-Allow-Origin", "*");
-  res.setHeader("Content-Type", "application/json");
   res.send(JSON.stringify(results.hits.hits));
 });
 
