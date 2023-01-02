@@ -17,3 +17,8 @@ Part 2: Create a React Mentions style text box:
 1. This textbook will retrieve mentions from the elastic search db
 2. Employees should highlight red and customers should highlight blue
 3. When suggesting, name should have customer or employee label
+
+
+# How to test
+
+For the purposes of testing this application with limited data:
