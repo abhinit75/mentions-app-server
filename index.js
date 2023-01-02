@@ -144,6 +144,6 @@ app.get("/search", async (req, res) => {
   res.send(results.hits.hits);
 });
 
-app.listen(PORT, () => {
-  console.log(`Server listening on ${PORT}`);
+app.listen(() => {
+  console.log(`Server listening`);
 });
