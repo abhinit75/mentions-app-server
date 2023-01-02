@@ -141,7 +141,8 @@ app.get("/search", async (req, res) => {
   let results = await read(query);
   // send it to frontend
   res.header("Access-Control-Allow-Origin", "*");
-  res.send(results.hits.hits);
+  res.setHeader("Content-Type", "application/json");
+  res.send(JSON.stringify(results.hits.hits));
 });
 
 app.listen(PORT, () => {
