@@ -12,6 +12,28 @@ import cors from "cors";
 const PORT = process.env.PORT || 3001;
 const app = express();
 
+app.use(
+  cors({
+    origin: [
+      "http://localhost:3000",
+      "https://mentions-app-client.onrender.com",
+      "https://mentions-app-server.onrender.com",
+    ], // use your actual domain name (or localhost), using * is not recommended
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS"],
+    allowedHeaders: [
+      "Content-Type",
+      "Origin",
+      "X-Requested-With",
+      "Accept",
+      "x-client-key",
+      "x-client-token",
+      "x-client-secret",
+      "Authorization",
+    ],
+    credentials: true,
+  })
+);
+
 const configuration = new Configuration({
   organization: "org-KadTqWe5M17Fpm5n9mXa0gqx",
   apiKey: process.env.OPENAI_API_KEY,
@@ -136,23 +158,6 @@ const read = async (str) => {
 };
 
 app.get("/search", async (req, res) => {
-  const allowedOrigins = [
-    "http://localhost:3000",
-    "https://mentions-app-client.onrender.com",
-    "https://mentions-app-server.onrender.com",
-  ];
-  const origin = req.headers.origin;
-  if (allowedOrigins.includes(origin)) {
-    res.setHeader("Access-Control-Allow-Origin", origin);
-  }
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
-  );
-  res.header("Access-Control-Allow-credentials", true);
-  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, UPDATE");
-  next();
-
   // Retrieve data from elastic
   const query = req.query.q;
   let results = await read(query);
