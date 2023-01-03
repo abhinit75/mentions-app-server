@@ -1,17 +1,16 @@
-import express from "express";
 import { Configuration, OpenAIApi } from "openai";
-import * as dotenv from "dotenv";
 import { createArrayCsvWriter } from "csv-writer";
 import { Client } from "@elastic/elasticsearch";
-import config from "config";
-import fs from "fs";
+import * as dotenv from "dotenv";
+import express from "express";
 import csv from "fast-csv";
-dotenv.config({ path: "../.env" });
 import cors from "cors";
+import fs from "fs";
 
+// Initial Configuration
+dotenv.config({ path: "../.env" });
 const PORT = process.env.PORT || 3001;
 const app = express();
-
 app.use(
   cors({
     origin: [
@@ -35,7 +34,7 @@ app.use(
 );
 
 const configuration = new Configuration({
-  organization: "org-KadTqWe5M17Fpm5n9mXa0gqx",
+  organization: process.env.ORGANIZATION,
   apiKey: process.env.OPENAI_API_KEY,
 });
 
@@ -85,13 +84,6 @@ const write_csv = (allRecords) => {
     });
 };
 
-app.get("/generatenames", (req, res) => {
-  // Add these names to elastic search db
-  let allRecords = extract_data(response.data);
-  // Write to CSV
-  write_csv(allRecords);
-});
-
 const retrieve_data = (callback) => {
   let data = [];
 
@@ -108,11 +100,11 @@ const retrieve_data = (callback) => {
 const elasticConfig = config.get("elastic");
 const client = new Client({
   cloud: {
-    id: elasticConfig.cloudID,
+    id: process.env.CLOUD_ID,
   },
   auth: {
-    username: elasticConfig.username,
-    password: elasticConfig.password,
+    username: process.env.USERNAME,
+    password: process.env.PASSWORD,
   },
 });
 
@@ -135,14 +127,6 @@ const ingest_data = (data) => {
   });
 };
 
-app.get("/addtoelastic", (req, res) => {
-  // Retrieve from CSV file
-  retrieve_data((data) => {
-    // add to elastic search db
-    ingest_data(data);
-  });
-});
-
 const read = async (str) => {
   const results = await client.search({
     index: "name-list",
@@ -157,6 +141,26 @@ const read = async (str) => {
   return results;
 };
 
+// API Requests
+
+// get request will retrive data from Open AI and store in CSV
+app.get("/generatenames", (req, res) => {
+  // Add these names to elastic search db
+  let allRecords = extract_data(response.data);
+  // Write to CSV
+  write_csv(allRecords);
+});
+
+// get request will add data from csv to elastic
+app.get("/addtoelastic", (req, res) => {
+  // Retrieve from CSV file
+  retrieve_data((data) => {
+    // add to elastic search db
+    ingest_data(data);
+  });
+});
+
+// retrieves the data from elastic depending on input from user
 app.get("/search", async (req, res) => {
   // Retrieve data from elastic
   const query = req.query.q;
