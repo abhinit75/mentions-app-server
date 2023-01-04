@@ -97,7 +97,6 @@ const retrieve_data = (callback) => {
 };
 
 // Configuring Elastic
-const elasticConfig = config.get("elastic");
 const client = new Client({
   cloud: {
     id: process.env.CLOUD_ID,
